@@ -39,8 +39,8 @@ def plot_pop_pareto_front(pop,paretofront, title=""):
     ax.plot(x,y,".", label="Pareto Front")
     fitpareto=list(zip(x,y))
     fitpop=list(zip(xp,yp))
-    print("Pareto: "+str(fitpareto))
-    print("Population: "+str(fitpop))
+    #print("Pareto: "+str(fitpareto))
+    #print("Population: "+str(fitpop))
 
     ax.set_title(title)
     plt.legend()
