@@ -7,12 +7,13 @@ import time
 nn=SimpleNeuralControllerNumpy(4,1,2,10)
 print(len(nn.get_parameters()))
 def eval_nn(env, genotype, render=False):
+    energie = 500
     nn=SimpleNeuralControllerNumpy(4,1,2,10)
     nn.set_parameters(genotype)
     observation = env.reset()
-    x = 0;
-    y = 0;
-    for t in range(50):
+    x = 0
+    y = 0
+    for t in range(energie):
         if render:
             env.render()
             time.sleep(0.05)
@@ -27,9 +28,13 @@ def eval_nn(env, genotype, render=False):
         if done:
             print("Episode finished after %d timesteps"%(t+1))
             break
-    return x/t,y/t
+    x = x/t
+    x += (energie - t)*2.4  #penalisation pour les tours restant
+    y = y/t
+    y += (energie - t)*41.8  #penalisation pour les tours restant
+    return x,y
 ### A completer pour optimiser les parametres du reseau de neurones avec CMA-ES ###
-def es(env,size_pop=50,lambda_=100,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=True):
+def es(env,size_pop=50,lambda_=100,pb_crossover=0.1, pb_mutation=0.9, nb_generation=100, display=False, verbose=True):
     from deap import base
     from deap import creator
     from deap import tools
@@ -109,7 +114,7 @@ def es(env,size_pop=50,lambda_=100,pb_crossover=0.6, pb_mutation=0.3, nb_generat
             print(ind.fitness.values)
 
         # remplacement
-        pop[:] = offspring
+        pop[:] = offspring + pop
 
             # Update the pareto with the generated individuals
         if paretofront is not None:
