@@ -29,6 +29,7 @@ def eval_nn(genotype, nbstep=2000, dump=False, render=False, name=""):
     observation = env.reset()
     old_pos=None
     total_dist=0
+    total_reward = 0
     if (dump):
         f=open("traj"+name+".log","w")
     for t in range(nbstep):
@@ -44,6 +45,7 @@ def eval_nn(genotype, nbstep=2000, dump=False, render=False, name=""):
             total_dist+=d
         old_pos=list(pos)
         if(done):
+            reward += 10000   #reward if done
             break
     if (dump):
         f.close()
@@ -61,7 +63,7 @@ center=nn.get_parameters()
 ## pour les variantes avec un seul objectif, vous pourrez, au choix, utiliser CMA-ES ou NSGA-2 avec un seul objectif,
 ## il vous est cependant recommandé d'utiliser NSGA-2 car cela limitera la différence entre les variantes et cela 
 ##vvous fera gagner du temps pour la suite.
-variant="FIT+NS"
+variant="NS"
 
 # votre code contiendra donc des tests comme suit pour gérer la différence entre ces variantes:
 if (variant=="FIT+NS"):

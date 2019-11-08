@@ -3,9 +3,13 @@ import gym
 import numpy as np
 from fixed_structure_nn_numpy import SimpleNeuralControllerNumpy
 import time
-
-nn=SimpleNeuralControllerNumpy(4,1,2,10)
-print(len(nn.get_parameters()))
+from deap import base
+from deap import creator
+from deap import tools
+import numpy 
+import random
+#nn=SimpleNeuralControllerNumpy(4,1,2,10)
+#print(len(nn.get_parameters()))
 def eval_nn(env, genotype, render=False):
     energie = 500
     nn=SimpleNeuralControllerNumpy(4,1,2,10)
@@ -35,12 +39,9 @@ def eval_nn(env, genotype, render=False):
     return x,y
 ### A completer pour optimiser les parametres du reseau de neurones avec CMA-ES ###
 def es(env,size_pop=50,lambda_=100,pb_crossover=0.1, pb_mutation=0.9, nb_generation=100, display=False, verbose=True):
-    from deap import base
-    from deap import creator
-    from deap import tools
-    import numpy 
-    import numpy as np
+
     IND_SIZE = 171
+    random.seed()
     
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(-1.0,-1.0))

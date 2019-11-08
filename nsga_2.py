@@ -35,7 +35,7 @@ def generateES(icls, scls, size, imin, imax, smin, smax):
     return ind
 
 
-def launch_nsga2(mu=50, lambda_=200, cxpb=0.6, mutpb=0.3, ngen=1000, display=False, verbose=False):
+def launch_nsga2(mu=50, lambda_=50, cxpb=0.6, mutpb=0.3, ngen=1000, display=False, verbose=False):
 
 
     ## A completer: creator et toolbox de DEAP ##
@@ -131,7 +131,7 @@ def launch_nsga2(mu=50, lambda_=200, cxpb=0.6, mutpb=0.3, ngen=1000, display=Fal
         if verbose:
             print(logbook.stream)
 
-        population = offspring
+        population[:] = offspring + population
 
 
     return population, logbook, paretofront
