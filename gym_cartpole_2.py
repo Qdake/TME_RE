@@ -7,9 +7,9 @@ from deap import base
 from deap import creator
 from deap import tools
 import numpy 
+from plot import *
 import random
-#nn=SimpleNeuralControllerNumpy(4,1,2,10)
-#print(len(nn.get_parameters()))
+
 def eval_nn(env, genotype, render=False):
     energie = 500
     nn=SimpleNeuralControllerNumpy(4,1,2,10)
@@ -30,15 +30,14 @@ def eval_nn(env, genotype, render=False):
         x += abs(observation[0])
         y += abs(observation[2])
         if done:
-            print("Episode finished after %d timesteps"%(t+1))
             break
     x = x/t
     x += (energie - t)*2.4  #penalisation pour les tours restant
     y = y/t
     y += (energie - t)*41.8  #penalisation pour les tours restant
     return x,y
-### A completer pour optimiser les parametres du reseau de neurones avec CMA-ES ###
-def es(env,size_pop=50,lambda_=100,pb_crossover=0.1, pb_mutation=0.9, nb_generation=100, display=False, verbose=True):
+
+def es(env,size_pop=50,lambda_=100,pb_crossover=0.6, pb_mutation=0.3,nb_generation=100, display=False, verbose=False):
 
     IND_SIZE = 171
     random.seed()
@@ -68,13 +67,14 @@ def es(env,size_pop=50,lambda_=100,pb_crossover=0.1, pb_mutation=0.9, nb_generat
 
     # generer la population initiale
     pop = toolbox.population(size_pop)
+
     # evaluation
     for ind in pop:
         ind.fitness.values = eval_nn(env,ind)
-        print(ind.fitness.values)
-
+    
+    # display
     if display:
-        plot_pop_pareto_front(population, [], "Gen: %d"%(0))
+        plot_pop_pareto_front(pop, [], "Gen: %d"%(0))
 
     # Update the hall of fame with the generated individuals
     if paretofront is not None:
@@ -88,7 +88,6 @@ def es(env,size_pop=50,lambda_=100,pb_crossover=0.1, pb_mutation=0.9, nb_generat
     
     for gen in range(1, nb_generation+1):
         print("generation ",gen)
-
         # Select the next generation individuals
         offspring = toolbox.select(pop)
         # Clone the selected individuals
@@ -101,7 +100,6 @@ def es(env,size_pop=50,lambda_=100,pb_crossover=0.1, pb_mutation=0.9, nb_generat
                 del child1.fitness.values
                 del child2.fitness.values
 
-
         #mutation
         for mutant in offspring:
             if np.random.random() < pb_mutation:
@@ -112,8 +110,7 @@ def es(env,size_pop=50,lambda_=100,pb_crossover=0.1, pb_mutation=0.9, nb_generat
         invalid_inds = [ind for ind in offspring if ind.fitness.valid == False]
         for ind in invalid_inds:
             ind.fitness.values = eval_nn(env,ind)
-            print(ind.fitness.values)
-
+ 
         # remplacement
         pop[:] = offspring + pop
 
@@ -122,7 +119,7 @@ def es(env,size_pop=50,lambda_=100,pb_crossover=0.1, pb_mutation=0.9, nb_generat
             paretofront.update(pop)
 
         if display:
-            plot_pop_pareto_front(population, paretofront, "Gen: %d"%(gen))
+            plot_pop_pareto_front(pop, paretofront, "Gen: %d"%(gen))
 
         record = statistics.compile(pop)
         logbook.record(gen=gen, nevals=len(pop), **record)

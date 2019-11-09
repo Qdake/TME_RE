@@ -194,12 +194,6 @@ def launch_nsga2(env,variant,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_g
 
 
 
-st = time.time()
-
-nn=SimpleNeuralControllerNumpy(5,2,2,10)
-print(len(nn.get_parameters()))
-
-
 display= False
 env = gym.make('FastsimSimpleNavigation-v0')
 
@@ -208,10 +202,10 @@ but_atteint = False
 _,_,paretofront,position_record = launch_nsga2(env,"NS",nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
 plot_pareto_front(paretofront, "Final pareto front")
 env.close()
-
+print("*********************************************")
 """
-
-#=================== Traitement du resultat ==========================================================
+#=========================================================================================
+# #=================== Traitement du resultat ==========================================================
 name = 'log/position_record_07_nov_18_00'
 import pickle
 # open a file, where you ant to store the data
