@@ -37,7 +37,7 @@ def eval_nn(env, genotype, render=False):
     y += (energie - t)*41.8  #penalisation pour les tours restant
     return x,y
 
-def es(env,size_pop=50,lambda_=100,pb_crossover=0.6, pb_mutation=0.3,nb_generation=100, display=False, verbose=False):
+def es(env,size_pop=50,lambda_=100,pb_crossover=0.6, pb_mutation=0.5,nb_generation=100, display=False, verbose=False):
 
     IND_SIZE = 171
     random.seed()

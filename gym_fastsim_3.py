@@ -4,6 +4,7 @@ from deap import *
 import numpy as np
 from fixed_structure_nn_numpy import SimpleNeuralControllerNumpy
 from scipy.spatial import KDTree
+import matplotlib.pyplot as plt
 
 from deap import algorithms
 from deap import base
@@ -23,6 +24,8 @@ from scoop import futures
 
 from novelty_search import *
 
+but_atteint = False
+
 def simulation(env,genotype,display=False):
     global but_atteint
     global size_nn
@@ -34,7 +37,7 @@ def simulation(env,genotype,display=False):
         env.enable_display()
     then = time.time()
     but = 0
-    for i in range(500):
+    for i in range(800):
         env.render()
         action=nn.predict(observation)
         action = [i * env.maxVel for i in action]
@@ -65,7 +68,7 @@ def simulation(env,genotype,display=False):
 ##########################################################################
 
 def launch_nsga2(env,variant,size_pop=100,pb_crossover=0.6, pb_mutation=0.3, nb_generation=1000, display=False, verbose=False):
-    but_atteint = False
+    global but_atteint
     but_generation = None
     # votre code contiendra donc des tests comme suit pour gérer la différence entre ces variantes:
     if (variant=="FIT+NS"):
@@ -90,7 +93,7 @@ def launch_nsga2(env,variant,size_pop=100,pb_crossover=0.6, pb_mutation=0.3, nb_
                  toolbox.attr_float, n=IND_SIZE)
     toolbox.register("population", tools.initRepeat, list,  toolbox.individual)
     toolbox.register("select", tools.selNSGA2)
-    toolbox.register("mate",tools.cxBlend,alpha=0.1)
+    toolbox.register("mate",tools.cxBlend,alpha=0.3)
     #halloffame
     paretofront = tools.ParetoFront()    
     #statistics
@@ -133,22 +136,37 @@ def launch_nsga2(env,variant,size_pop=100,pb_crossover=0.6, pb_mutation=0.3, nb_
     if verbose:
         print(logbook.stream)
 
+    means = []
+    mins = []
+
     # main boucle
     for gen in range(1, nb_generation+1):
 
-        print("generation ",gen)
+        #print("generation ",gen)
+        
 
         if but_atteint and but_generation==None:
             but_generation = gen
 
-        if gen%50 == 0:
-            print("generation ",gen)
+        #if gen%50 == 0:
+            #print("generation ",gen)
 
         # Select the next generation individuals
         offspring = toolbox.select(pop, size_pop)
         
         # Clone the selected individuals
         offspring = list(map(toolbox.clone, offspring))  
+        #print(np.mean(np.array([ind.fitness.values[1] for ind in offspring])))
+        #print(np.min(np.array([ind.fitness.values[1] for ind in offspring])))
+
+        if (variant=="NS"):
+            means.append(np.mean(np.array([ind.fitness.values[0] for ind in offspring])))
+            mins.append(np.min(np.array([ind.fitness.values[0] for ind in offspring])))
+
+        else:
+            means.append(np.mean(np.array([ind.fitness.values[1] for ind in offspring])))
+            mins.append(np.min(np.array([ind.fitness.values[1] for ind in offspring])))
+
 
         # crossover
         for child1, child2 in zip(offspring[::2], offspring[1::2]):
@@ -180,7 +198,7 @@ def launch_nsga2(env,variant,size_pop=100,pb_crossover=0.6, pb_mutation=0.3, nb_
                 ind.fitness.values = list(ind.fitness.values)+list([ind.novelty])
 
         # Select the next generation population
-        pop[:] = offspring
+        pop[:] = offspring + pop
 
         # Update the hall of fame with the generated individuals
         paretofront.update(pop)
@@ -192,6 +210,6 @@ def launch_nsga2(env,variant,size_pop=100,pb_crossover=0.6, pb_mutation=0.3, nb_
         if but_atteint:
             break
             
-    return pop,logbook, paretofront,position_record,but_atteint,but_generation
+    return pop,logbook, paretofront,position_record,but_atteint,but_generation, means, mins
 
 
